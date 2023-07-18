@@ -1,0 +1,85 @@
+static char *pt1 = NULL;
+    static char *pt2 = NULL;
+    char *pt3 = NULL;
+    static char *ptFinal;
+
+    if (cad1 != NULL)
+    {
+        pt1 = cad1;
+        ptFinal = pt1 + strlen(cad1);
+    }
+    else
+    {
+        pt1 = pt2 + 1;
+    }
+
+    if (comillas)
+    {
+        while (pt1[0] != '\0' && pt1 < ptFinal && strchr(sep, pt1[0]) != NULL && pt1[0] != '[')
+            pt1++;
+        if (pt1[0] == '[')
+        {
+            pt1++;
+            pt2 = pt1 + 1;
+            if (pt1[0] == ' ')
+            {
+                while (pt1[0] == ' ')
+                {
+                    pt1++;
+                    pt2 = pt1 + 1;
+                }
+            }
+            while (pt2[0] != '\0' && pt2[0] != ']')
+            {
+                pt2++;
+                pt3 = pt2 + 1;
+                if (pt3[0] == '\0' && pt2[0] != ']')
+                    return "pTERROR";
+                else if (pt2[0] == '\0')
+                    return NULL;
+            }
+            if (pt2[0] == '\0')
+            {
+                pt1 = pt2 = ptFinal = NULL;
+                return NULL;
+            }
+            else if (pt3[0] == ']' && pt2[0] == ' ')
+            {
+                return "pTERROR";
+            }
+            else
+            {
+                pt2[0] = '\0';
+                return pt1;
+            }
+        }
+    }
+    else
+    {
+        while (pt1[0] != '\0' && pt1 < ptFinal && strchr(sep, pt1[0]) != NULL)
+            pt1++;
+    }
+
+    if (pt1 >= ptFinal)
+    {
+        pt1 = pt2 = ptFinal = NULL;
+        return NULL;
+    }
+
+    pt2 = pt1 + 1;
+    while (pt2[0] != '\0' && strchr(sep, pt2[0]) == NULL)
+        pt2++;
+    pt2[0] = '\0';
+
+    return pt1;
+}
+
+// Si es un simbolo devuelve 1, si no 0
+int esSimbolo(char *simbolo){
+
+    if(simbolo[0] == '+' || simbolo[0] == '-' || simbolo[0] == '#' ){
+        return 1;
+    }
+    else{
+        return 0;
+    }
