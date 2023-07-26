@@ -153,8 +153,6 @@ TNUM *crearListaNum(double valor, int dec)
     return nuevoNodo;
 }
 
-
-
 // Devuelve 0 si todo ok, 1 si hay error
 int Expansioncorchetes(char* separadores, char* comtok, TLISTA *listaaux) {
     char* comtokaux2[100];
@@ -487,9 +485,14 @@ TLISTA *RestaListas(TLISTA *listaux, TLISTA *listaux2) {
     numAux2 = listaDuplicada2->primero;
 
     while (numAux2 != NULL) {
+        
         numAux = listaDuplicada->primero;
+        printf("NUMERO A COMPARAR: %.11g\n", numAux2->valor);
 
         while (numAux != NULL) {
+
+            printf("NUMERO A COMPARAR: %.11g\n", numAux->valor);
+            
             if (numAux->valor == numAux2->valor) {
                 // Borramos de las listas el numero coincidente
                 eliminarElementoLista(listaDuplicada, numAux->valor);
@@ -502,8 +505,15 @@ TLISTA *RestaListas(TLISTA *listaux, TLISTA *listaux2) {
             numAux = numAux->siguiente; // Avanzamos el puntero de listaDuplicada
         }
 
-        if (!cortafuegos) {
+        if (cortafuegos == 0) {
+            printf("NUMERO NO REPETIDO\n");
             numAux2 = numAux2->siguiente; // Avanzamos el puntero de listaDuplicada2
+            //printf("Numero seleccionado: %.11g\n", numAux2->valor);
+        }
+        else{
+            printf("NUMERO REPETIDO\n");
+            numAux2 = listaDuplicada2->primero;
+            //printf("Numero seleccionado: %.11g\n", numAux2->valor);
         }
         cortafuegos = 0;
     }
@@ -515,8 +525,6 @@ TLISTA *RestaListas(TLISTA *listaux, TLISTA *listaux2) {
 
     return lista;
 }
-
-
 
 
 TLISTA *crearDuplicadoLista(TLISTA *lista) {
