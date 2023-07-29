@@ -56,7 +56,7 @@ char * MiStrTok(char *cad1, char *sep, int comillas){
 			pt1++;
 		if(pt1[0]=='['){
 			pt1++;
-			pt2=pt1+1;
+			pt2=pt1;
 			while( pt2[0]!='\0' && pt2[0]!=']' )
 				pt2++;
 			if(pt2[0]=='\0'){
@@ -278,7 +278,6 @@ int Expansioncorchetes(char* separadores, char* comtok, TLISTA *listaaux) {
             double comtokaux4 = atof(comtokaux2[4]);
             int signo = 0;
 
-            printf("comtokaux2: %.11g\n", comtokaux2INT);
 
             //Comprobamos el signo
             if(comtokaux2INT < 0){
@@ -291,8 +290,7 @@ int Expansioncorchetes(char* separadores, char* comtok, TLISTA *listaaux) {
                 printf("ERROR");
                 return 1;
             }
-
-            if(comtokaux0 < comtokaux4){
+            if(comtokaux0 <= comtokaux4){
 
                 if(comtokaux2INT <= 0){
                     printf("ERROR");
@@ -604,8 +602,7 @@ void eliminarElementoLista(TLISTA *lista, double valor){
 
 }
 
-void VerLista(TLISTA *lista)
-{
+void VerLista(TLISTA *lista){
 
     if(lista->primero == NULL){
         printf("Lista vacia\n");
@@ -613,6 +610,7 @@ void VerLista(TLISTA *lista)
     }
 
     TNUM *auxiliar=lista->primero;
+    printf("%i",lista->n);
     for (int i=0; i<lista->n; i++){
         printf("\n%d,  %.11g, %d\n",i, auxiliar->valor, auxiliar->decimales);
         auxiliar=auxiliar->siguiente;
@@ -628,7 +626,17 @@ int validar_corchetes(char *cadena){
     int corchetesApertura=0;
     int corchetesCierre=0;
     int orden=0;
-
+    while(cadena[i] != '\0'){
+        if(cadena[i] == '[' || cadena[i] == ']'){
+            contador++;           
+        }
+        i++;
+    }
+    if(contador == 0){
+        return 1;
+    }
+    i = 0;
+    contador = 0;
     while(cadena[i] != '\0'){
         if(cadena[i] == '[' && contador == 0){
             contador++;
@@ -657,10 +665,10 @@ int validar_corchetes(char *cadena){
         i++;
     }
 
-    if(contador == 0 && primeravez == 1 && corchetesApertura == corchetesCierre){ //Si contador es 0 es que esta bien escrita
+    if(contador == 0 && primeravez == 1 && corchetesApertura == corchetesCierre){ //Si contador es 1 es que esta bien escrita
         return 1;
     }
-    else{ //Si contador es 1 es que esta mal escrita
+    else{ //Si contador es 0 es que esta mal escrita
         return 0;
     }
 }
@@ -824,7 +832,7 @@ TVAR *buscarVariable (TVAR *laGranVariable, char *nombrevariable){
     TVAR *auxiliar = laGranVariable;
 
     while(auxiliar != NULL){
-
+        printf("%s\n",auxiliar->nombre);
         if(strcmp(auxiliar->nombre, nombrevariable) == 0){
             return auxiliar;
         }
@@ -997,6 +1005,10 @@ TLISTA *charToList(char *cadena,TVAR *laGranVariable) {
         return NULL;
     } else if(listaOvariable(cadena) == 0){
         TVAR *aux = buscarVariable(laGranVariable, cadena);
+        if(aux == NULL){
+            printf("ERROR de variable\n");
+            return NULL;
+        }
         lista = aux->valor;
     } else if(Expansioncorchetes(" \t\n", cadena, lista) == 1){
         printf("ERROR\n");
@@ -1006,8 +1018,6 @@ TLISTA *charToList(char *cadena,TVAR *laGranVariable) {
 }
 
 TLISTA *operar(char** cadena, TVAR *laGranVariable){
-    int numPlus = contarCaracter(cadena, "+");
-    printf("numPlus: %d\n", numPlus);
     TLISTA *lista1 = crearLista();
     TLISTA *lista2 = crearLista();
     if(contarCaracter(cadena, "+") == 1){
@@ -1018,6 +1028,8 @@ TLISTA *operar(char** cadena, TVAR *laGranVariable){
         lista1 = charToList(cadena[0], laGranVariable);
         lista2 = charToList(cadena[2], laGranVariable);
         return RestaListas(lista1, lista2);
+    } else {
+        return charToList(cadena[0], laGranVariable);
     }
     free(lista1);
     free(lista2);

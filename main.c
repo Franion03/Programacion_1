@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
     char **AUX;
 
-    int num_arg,num_arg_aux,auxMistrtok,cortafuegos=0;
+    int num_arg,auxMistrtok,cortafuegos=0;
 
     TVARS *workspace = NULL;
     TVAR *LaGranVariable = NULL; // Se guardan todos los datos de las listas (nombre incluido)
@@ -49,27 +49,22 @@ int main(int argc, char *argv[])
         gets(command);
         strcpy(commandAux, command);
 
+        
+        if(validar_corchetes(commandAux) == 0){
+            printf("corchetes Incorrectos \n");
+            continue;
+        }
         num_arg = 0;
-        cortafuegos = 0;
-        comtok[num_arg] = strtok(command, separadores);
+        comtok[num_arg] = MiStrTok(commandAux, separadores, 1);
+        printf("comtok[%d]: %s\n", num_arg, comtok[num_arg]);
         num_arg++;
-        while((comtok[num_arg] = strtok(NULL, separadores)) != NULL){
+        while ((comtok[num_arg] = MiStrTok(NULL, separadores, 1)) != NULL){
+            printf("comtok[%d]: %s\n", num_arg, comtok[num_arg]);
             num_arg++;
         }
-
         if(comtok[0] == NULL){
             continue;
         }
-
-        LALLAVE = 0;    
-        numeroLLAVES = 0;
-        
-        for (int i = 0; i < num_arg; i++) {
-            if(strcmp(comtok[i], "[]") == 0){
-                LALLAVE=1;
-                numeroLLAVES++;
-            }
-        }aa
         if(strcmp(comtok[0], "exit") == 0 && num_arg == 1){
             //liberar memoria
             SetConsoleTextAttribute(hConsole, 2);
@@ -89,82 +84,47 @@ int main(int argc, char *argv[])
         } else if(strcmp(comtok[0], "load") == 0){
             printf("load\n");
         } else if(num_arg > 1 && strcmp(comtok[1], "=") == 0){ // a = [1,2,3] OK
-            printf("Hola buenas\n");
             if(listaOvariable(comtok[0]) != 0){
                 printf("Error de sintaxis\n");
                 continue;
             }
             TVAR *variableAsignar = crearVariable(comtok[0], NULL);
-            for(int i =0; i< num_arg; i++){
-                comtok[i] = NULL;
-            }
-            num_arg_aux = 0;
-            comtok[num_arg_aux] = MiStrTok(commandAux, separadores, 0);
-            printf("comtok[%d]: %s\n", num_arg_aux, comtok[num_arg_aux]);
-            num_arg_aux++;
-            while ((comtok[num_arg_aux] = MiStrTok(NULL, separadores, 1)) != NULL){
-                printf("comtok[%d]: %s\n", num_arg_aux, comtok[num_arg_aux]);
-                num_arg_aux++;
-            }
             variableAsignar->valor = operar(&comtok[2],LaGranVariable);
             
-
+            VerLista(variableAsignar->valor);
+            LaGranVariable = insertaUltimaLaGranVariable(LaGranVariable,variableAsignar);
             continue;
-        } else if(num_arg > 1 && strcmp(comtok[1], "#") == 0){ // a = [1,2,3] OK
+        } else if(num_arg > 1 && strcmp(comtok[1], "#") == 0 && num_arg <= 3){ // a = [1,2,3] OK
             int comprobante = 0;
             TVAR *aux;
             TLISTA *listaux = crearLista();
             TLISTA *listaux2 = crearLista();
-            comprobante = listaOvariable(comtok[0]);
-            if(comprobante == 0){
-                //Buscamos una variable
-                aux = buscarVariable(LaGranVariable, comtok[0]);
-                listaux = aux->valor;
-            }
-            else{
-                printf("Error de sintaxis 1111\n");
-                continue;
-            }
-            //imprimir listaux
-            printf("CONTIENE LISTA 1[");
-            VerLista(listaux);
-            printf("]\n");
-            comprobante = Expansioncorchetes(separadores, comtok[2], listaux2);
-            printf("%d\n", comprobante);
-            if(comprobante == 1){
-                printf("Error de sintaxis COMPROBANTE\n");
-                continue;
-            }
+            
+            listaux = charToList(comtok[0], LaGranVariable);
+            listaux2 = charToList(comtok[2], LaGranVariable);
             //Aqui tenemos que comparar una lista contra otra
-            comprobante = contenidaLista(listaux2, listaux);
-            if(comprobante == 1){
+            if(contenidaLista(listaux2, listaux) == 1){
                 printf("TRUE\n");
-            }
-            else{
+            } else{
                 printf("FALSE\n");
             }
             continue;
         } else {
-            num_arg_aux = 0;
-            comtok[num_arg_aux] = MiStrTok(commandAux, separadores, 1);
-            printf("comtok[%d]: %s\n", num_arg_aux, comtok[num_arg_aux]);
-            num_arg_aux++;
-            while ((comtok[num_arg_aux] = MiStrTok(NULL, separadores, 1)) != NULL){
-                printf("comtok[%d]: %s\n", num_arg_aux, comtok[num_arg_aux]);
-                num_arg_aux++;
+            TLISTA* listToPrint = operar(comtok,LaGranVariable);
+            if(listToPrint != NULL){
+                VerLista(listToPrint);
             }
-            operar(comtok,LaGranVariable);
         }
             // if (strchr(commandAux, '[') == NULL && strchr(commandAux, ']') == NULL){ // No se van a usar los corchetes aqui
             //     printf("No hay corchetes\n");
-            //     num_arg_aux = 0;
-            //     comtok[num_arg_aux] = MiStrTok(commandAux, separadores, 0);
-            //     num_arg_aux++;
-            //     while ((comtok[num_arg_aux] = MiStrTok(NULL, separadores, 0)) != NULL){
-            //         printf("comtok[%d]: %s\n", num_arg_aux, comtok[num_arg_aux]);
-            //         num_arg_aux++;
+            //     num_arg = 0;
+            //     comtok[num_arg] = MiStrTok(commandAux, separadores, 0);
+            //     num_arg++;
+            //     while ((comtok[num_arg] = MiStrTok(NULL, separadores, 0)) != NULL){
+            //         printf("comtok[%d]: %s\n", num_arg, comtok[num_arg]);
+            //         num_arg++;
             //     }
-            //     for (int i = 0; i < num_arg_aux; i++){
+            //     for (int i = 0; i < num_arg; i++){
             //         printf("%s\n", comtok[i]);
             //     }
             //     //buscar variable
@@ -421,24 +381,24 @@ int main(int argc, char *argv[])
             //             }
             //         }
             //         else{
-            //             num_arg_aux = 0;
-            //             comtok[num_arg_aux] = MiStrTok(commandAux, separadores, 0);
-            //             num_arg_aux++;
-            //             while ((comtok[num_arg_aux] = MiStrTok(NULL, separadores, 1)) != NULL){
-            //                 printf("comtok[%d]: %s\n", num_arg_aux, comtok[num_arg_aux]);
-            //                 num_arg_aux++;
+            //             num_arg = 0;
+            //             comtok[num_arg] = MiStrTok(commandAux, separadores, 0);
+            //             num_arg++;
+            //             while ((comtok[num_arg] = MiStrTok(NULL, separadores, 1)) != NULL){
+            //                 printf("comtok[%d]: %s\n", num_arg, comtok[num_arg]);
+            //                 num_arg++;
             //             }
-            //             printf("num_arg_aux: %d\n", num_arg_aux);
-            //             if(num_arg_aux != 3 && num_arg_aux != 5){
+            //             printf("num_arg: %d\n", num_arg);
+            //             if(num_arg != 3 && num_arg != 5){
             //                 printf("Error de sintaxis\n");
             //                 continue;
             //             }
             //         }
-            //         if(num_arg_aux != 2 && num_arg_aux != 4 && LALLAVE == 1){
+            //         if(num_arg != 2 && num_arg != 4 && LALLAVE == 1){
             //             printf("Error de sintaxis LALLAVE = !\n");
             //             continue;
             //         }
-            //         if(num_arg_aux == 3 || (num_arg_aux == 2 && LALLAVE == 1)){  
+            //         if(num_arg == 3 || (num_arg == 2 && LALLAVE == 1)){  
             //             if(strcmp(comtok[1], "=") == 0){ // caso a = [1,2,3] OK
             //                 //ESTO LO ACABAREMOS BORRANDO
             //                 // printf("ENTRAMOS A =\n");
@@ -633,7 +593,7 @@ int main(int argc, char *argv[])
             //                 continue;
             //             }
             //         }
-            //         else if(num_arg_aux == 5 ||  (num_arg_aux == 4 && LALLAVE == 1)){ // a = b + [1 2 3]  // a = [1 2 3] + b
+            //         else if(num_arg == 5 ||  (num_arg == 4 && LALLAVE == 1)){ // a = b + [1 2 3]  // a = [1 2 3] + b
             //             if(LALLAVE == 1){
             //                 printf("HOLAAAA");
             //             }
@@ -657,7 +617,7 @@ int main(int argc, char *argv[])
             //             }
             //             comtok[i] = NULL;
             //         }
-            //         num_arg_aux = 0;
+            //         num_arg = 0;
             //         //Revision por si hubiesen listas vacias
             //         if(strcmp(commandAux, "[]") == 0 ){ // [] OK
             //             printf(" LINEA 432: SOLO []\n");
@@ -670,7 +630,7 @@ int main(int argc, char *argv[])
             //             strcpy(commandAux, auxiliarletra+3);
             //             printf("commandAux: %s\n", commandAux);
             //             comtok[0] = NULL;
-            //             num_arg_aux ++;
+            //             num_arg ++;
             //         }
             //         else if(LALLAVE == 1 && posicion != 0 && numeroLLAVES < 2){ // [1 2 3] + [] OK                    
             //             printf("numero llaves: %d\n", numeroLLAVES);
@@ -694,16 +654,16 @@ int main(int argc, char *argv[])
             //             }
             //             continue;
             //         }                        
-            //         comtok[num_arg_aux] = MiStrTok(commandAux, separadores, 1);
-            //         num_arg_aux++;
-            //         while ((comtok[num_arg_aux] = MiStrTok(NULL, separadores, 1)) != NULL){
-            //             printf("comtok[%d]: %s\n", num_arg_aux, comtok[num_arg_aux]);
-            //             num_arg_aux++;
+            //         comtok[num_arg] = MiStrTok(commandAux, separadores, 1);
+            //         num_arg++;
+            //         while ((comtok[num_arg] = MiStrTok(NULL, separadores, 1)) != NULL){
+            //             printf("comtok[%d]: %s\n", num_arg, comtok[num_arg]);
+            //             num_arg++;
             //         }
             //         if(LALLAVE == 1 && posicion != 0){
-            //             num_arg_aux++;
+            //             num_arg++;
             //         }
-            //         if(num_arg_aux == 1){ // [1 2 3] OK
+            //         if(num_arg == 1){ // [1 2 3] OK
             //             int comprobante = 0;                        
             //             TLISTA *listaux = crearLista();
             //             comprobante = Expansioncorchetes(separadores, comtok[0], listaux);
@@ -720,9 +680,9 @@ int main(int argc, char *argv[])
             //             }
             //             printf("]\n");
             //         }
-            //         else if(num_arg_aux == 3){ // [1 2 3] + [1 2 3]     // [1 2 3] + a   //[1 2 3] # [1 2 3 4]
+            //         else if(num_arg == 3){ // [1 2 3] + [1 2 3]     // [1 2 3] + a   //[1 2 3] # [1 2 3 4]
             //             //imprimir comtok
-            //             for(int i = 0; i < num_arg_aux; i++){
+            //             for(int i = 0; i < num_arg; i++){
             //                 printf("AA.%s\n", comtok[i]);
             //             }
             //             if(strcmp(comtok[1], "+") == 0){ // [1 2 3] + [1 2 3]     // [1 2 3] + a OK
