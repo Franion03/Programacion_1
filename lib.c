@@ -38,61 +38,49 @@ int validar_variable(char *nombre){
     return 1;
 }
 
-char *MiStrTok(char *cad1, char *sep, int comillas)
-{
+char * MiStrTok(char *cad1, char *sep, int comillas){
     static char *pt1=NULL;
 	static char *pt2=NULL; 
 	static char *ptFinal;
 
-	if(cad1!=NULL)
-	{
+	if(cad1!=NULL){
 		pt1 = cad1;
 		ptFinal = pt1+strlen(cad1);
 	}
-	else
-	{
+	else{
 		pt1=pt2+1;
 	}
 
-	if(comillas == 1)
-	{
+	if(comillas == 1){
 		while( pt1[0]!='\0' && pt1<ptFinal && strchr(sep, pt1[0])!=NULL && pt1[0]!='[')
 			pt1++;
-		if(pt1[0]=='[')
-		{
+		if(pt1[0]=='['){
 			pt1++;
 			pt2=pt1+1;
 			while( pt2[0]!='\0' && pt2[0]!=']' )
 				pt2++;
-			if(pt2[0]=='\0')
-			{
+			if(pt2[0]=='\0'){
 				pt1=pt2=ptFinal=NULL;
 				return NULL;
 			}
-			else
-			{
+			else{
 				pt2[0]='\0';
 				return pt1;
 			}
 		}
 	}
-	else
-	{
+	else{
 		while( pt1[0]!='\0' && pt1<ptFinal && strchr(sep, pt1[0])!=NULL )
 			pt1++;
 	}
-
-	if(pt1>=ptFinal)
-	{
+	if(pt1>=ptFinal){
 		pt1=pt2=ptFinal=NULL;
 		return NULL;
 	}
-
 	pt2=pt1+1;
 	while( pt2[0]!='\0' &&  strchr(sep, pt2[0])==NULL )
 		pt2++;
 	pt2[0]='\0';
-
 	return pt1;
 }
 
@@ -986,6 +974,54 @@ int  contenidaLista(TLISTA *L2, TLISTA *L1){
    
 
     
+}
+
+int contarCaracter(char **cadena, char *caracter) {
+    int contador = 0;
+    int i = 0;
+
+    while (cadena[i] != '\0') {
+        if (strcmp(cadena[i], caracter) == 0) {
+            contador++;
+        }
+        i++;
+    }
+
+    return contador;
+}
+
+TLISTA *charToList(char *cadena,TVAR *laGranVariable) {
+    TLISTA *lista = crearLista();
+    if(listaOvariable(cadena) == 1){
+        printf("ERROR\n");
+        return NULL;
+    } else if(listaOvariable(cadena) == 0){
+        TVAR *aux = buscarVariable(laGranVariable, cadena);
+        lista = aux->valor;
+    } else if(Expansioncorchetes(" \t\n", cadena, lista) == 1){
+        printf("ERROR\n");
+        return NULL;
+    }
+    return lista;
+}
+
+TLISTA *operar(char** cadena, TVAR *laGranVariable){
+    int numPlus = contarCaracter(cadena, "+");
+    printf("numPlus: %d\n", numPlus);
+    TLISTA *lista1 = crearLista();
+    TLISTA *lista2 = crearLista();
+    if(contarCaracter(cadena, "+") == 1){
+        lista1 = charToList(cadena[0], laGranVariable);
+        lista2 = charToList(cadena[2], laGranVariable);
+        return CombinacionListas(lista1, lista2);
+    } else if(contarCaracter(cadena, "-") == 1){
+        lista1 = charToList(cadena[0], laGranVariable);
+        lista2 = charToList(cadena[2], laGranVariable);
+        return RestaListas(lista1, lista2);
+    }
+    free(lista1);
+    free(lista2);
+    return NULL;
 }
 
 

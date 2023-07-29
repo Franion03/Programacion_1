@@ -55,7 +55,10 @@ void eliminarElementoLista(TLISTA *lista, double valor);
 int listaOvariable(char *cad);
 TVAR *insertaUltimaLaGranVariable(TVAR *laGranVariable, TVAR *variable);
 TVAR *buscarVariable (TVAR *laGranVariable, char *nombrevariable);
-int  contenidaLista(TLISTA *listaux, TLISTA *listaux2);
+int contenidaLista(TLISTA *listaux, TLISTA *listaux2);
+int contarCaracter(char **cadena, char *caracter);
+TLISTA *operar(char **cadena, TVAR *laGranVariable);
+TLISTA *charToList(char *cadena,TVAR *laGranVariable);
 
 
 #endif
