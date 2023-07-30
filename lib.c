@@ -142,7 +142,7 @@ TNUM *crearListaNum(double valor, int dec)
 }
 
 // Devuelve 0 si todo ok, 1 si hay error
-int Expansioncorchetes(char* separadores, char* comtok, TLISTA *listaaux) {
+int expansionCorchetes(char* separadores, char* comtok, TLISTA *listaaux) {
     char* comtokaux2[100];
     char cadena[20];
     TNUM *numAux;
@@ -200,7 +200,7 @@ int Expansioncorchetes(char* separadores, char* comtok, TLISTA *listaaux) {
 
         if(num_arg == 3){
 
-            if(DecimalValidar(comtokaux2[0]) == 0 || DecimalValidar(comtokaux2[2]) == 0){
+            if(decimalValidar(comtokaux2[0]) == 0 || decimalValidar(comtokaux2[2]) == 0){
                 printf("ERROR");
                 
                 return 1;
@@ -266,7 +266,7 @@ int Expansioncorchetes(char* separadores, char* comtok, TLISTA *listaaux) {
 
         if(num_arg == 5){
 
-            if(DecimalValidar(comtokaux2[0]) == 0 || DecimalValidar(comtokaux2[2]) == 0 || DecimalValidar(comtokaux2[4]) == 0){
+            if(decimalValidar(comtokaux2[0]) == 0 || decimalValidar(comtokaux2[2]) == 0 || decimalValidar(comtokaux2[4]) == 0){
                 printf("ERROR");
                 
                 return 1;
@@ -348,7 +348,7 @@ int Expansioncorchetes(char* separadores, char* comtok, TLISTA *listaaux) {
         //printf("Defecto\n");
 
         for (int i = 0; i < num_arg; i++) {
-            if(DecimalValidar(comtokaux2[i]) == 0){
+            if(decimalValidar(comtokaux2[i]) == 0){
                 printf("ERROR");
                 return 1;
             }
@@ -389,11 +389,11 @@ TLISTA * CombinacionListas(TLISTA *listaux, TLISTA *listaux2){
     TNUM *numAux, *numTemp, *numLista;
 
     printf("DENTRO COMBI LISTA 1[");
-    VerLista(listaux);
+    verLista(listaux);
     printf("]\n");
 
     printf("DENTRO COMBI LISTA 2[");
-    VerLista(listaux2);
+    verLista(listaux2);
     printf("]\n");
 
     if(listaux->primero == NULL){
@@ -443,7 +443,7 @@ TLISTA * CombinacionListas(TLISTA *listaux, TLISTA *listaux2){
     
     printf("SALIMOS\n");
 
-    VerLista(lista);
+    verLista(lista);
 
     return lista;
 }
@@ -507,7 +507,7 @@ TLISTA *RestaListas(TLISTA *listaux, TLISTA *listaux2) {
     lista = crearDuplicadoLista(listaDuplicada);
 
     printf("SALIMOS\n");
-    VerLista(lista);
+    verLista(lista);
 
     return lista;
 }
@@ -587,7 +587,7 @@ void eliminarElementoLista(TLISTA *lista, double valor){
 
             printf("D ELIMINAR ELEMENTO\n");
 
-            VerLista(lista);
+            verLista(lista);
 
             //Salimos del bucle
             return;
@@ -602,7 +602,7 @@ void eliminarElementoLista(TLISTA *lista, double valor){
 
 }
 
-void VerLista(TLISTA *lista){
+void verLista(TLISTA *lista){
 
     if(lista->primero == NULL){
         printf("Lista vacia\n");
@@ -617,6 +617,65 @@ void VerLista(TLISTA *lista){
     }
 }
 
+TLISTA * copiarNlistaPrimeras(TLISTA *lista,int n){
+    TNUM *numAux, *numTemp, *numLista;
+    TLISTA *listaAux = crearLista();
+
+    if(lista->primero == NULL){
+        printf("Lista vacia\n");
+        return NULL;
+    }
+    if(n>lista->n){
+        printf("No hay tantos elementos\n");
+        n = lista->n;
+    }
+    listaAux->n = n;
+    numAux = lista->primero;
+    numTemp = crearListaNum(numAux->valor, numAux->decimales);
+    listaAux->primero = numTemp;
+    listaAux->ultimo = numTemp;
+    numAux = numAux->siguiente;
+
+    for (int i=1; i<n; i++){
+        numTemp = crearListaNum(numAux->valor, numAux->decimales);
+        numLista = listaAux->ultimo;
+        numLista->siguiente = numTemp;
+        numTemp->anterior = numLista;
+        listaAux->ultimo = numTemp;
+        numAux = numAux->siguiente;        
+    }
+    return listaAux;
+}
+
+TLISTA * copiarNlistaUltimas(TLISTA *lista,int n){
+    TNUM *numAux, *numTemp, *numLista;
+    TLISTA *listaAux = crearLista();
+
+    if(lista->primero == NULL){
+        printf("Lista vacia\n");
+        return NULL;
+    }
+    if(n>lista->n){
+        printf("No hay tantos elementos\n");
+        n = lista->n;
+    }
+    listaAux->n = n;
+    numAux = lista->ultimo;
+    numTemp = crearListaNum(numAux->valor, numAux->decimales);
+    listaAux->primero = numTemp;
+    listaAux->ultimo = numTemp;
+    numAux = numAux->anterior;
+
+    for (int i=1; i<n; i++){
+        numTemp = crearListaNum(numAux->valor, numAux->decimales);
+        numLista = listaAux->primero;
+        numLista->anterior = numTemp;
+        numTemp->siguiente = numLista;
+        listaAux->primero = numTemp;
+        numAux = numAux->anterior;        
+    }
+    return listaAux;
+}
 
 //Validar cadena bien escrita de corchetes
 int validar_corchetes(char *cadena){
@@ -691,8 +750,8 @@ int NumDecimales (char *cad){
 
     return j;
 }
-
-int DecimalValidar (char *cad) //ESTO VALIDA TANTO DECIMALES, REALES y ENTEROS bn 1 mal 0
+//ESTO VALIDA TANTO DECIMALES, REALES y ENTEROS bn 1 mal 0
+int decimalValidar (char *cad) 
 {
 	int i, ini, p=0, j;
 	
@@ -735,7 +794,7 @@ int DecimalValidar (char *cad) //ESTO VALIDA TANTO DECIMALES, REALES y ENTEROS b
 }
 
 //Devuelve 1 si es un entero, 0 si es otra cosa
-int EnteroValidar (char *cad)
+int enteroValidar (char *cad)
 {
 	int i, ini;
 	
@@ -864,11 +923,11 @@ int  contenidaLista(TLISTA *L2, TLISTA *L1){
     int bucle2 = 0, bucle1;
 
     printf("DENTRO COMBI LISTA 1[");
-    VerLista(L2);
+    verLista(L2);
     printf("]\n");
 
     printf("DENTRO COMBI LISTA 2[");
-    VerLista(L1);
+    verLista(L1);
     printf("]\n");
 
     //Creamos duplicado de listux2
@@ -912,8 +971,8 @@ int  contenidaLista(TLISTA *L2, TLISTA *L1){
                 eliminarElementoLista(listaDuplicada, numAux->valor);
                 eliminarElementoLista(listaDuplicada2, numAux2->valor);
 
-                VerLista(listaDuplicada);
-                VerLista(listaDuplicada2);
+                verLista(listaDuplicada);
+                verLista(listaDuplicada2);
 
                 numAux = listaDuplicada->primero;
                 numAux2 = listaDuplicada2->primero;
@@ -967,8 +1026,8 @@ int  contenidaLista(TLISTA *L2, TLISTA *L1){
 
     printf("SALIMOS\n");
 
-    VerLista(lista);
-    VerLista(L2);
+    verLista(lista);
+    verLista(L2);
 
     int numeroelementos = L2->n - L1->n;
 
@@ -1010,14 +1069,14 @@ TLISTA *charToList(char *cadena,TVAR *laGranVariable) {
             return NULL;
         }
         lista = aux->valor;
-    } else if(Expansioncorchetes(" \t\n", cadena, lista) == 1){
+    } else if(expansionCorchetes(" \t\n", cadena, lista) == 1){
         printf("ERROR\n");
         return NULL;
     }
     return lista;
 }
 
-TLISTA *operar(char** cadena, TVAR *laGranVariable){
+TLISTA *operar(char** cadena, TVAR *laGranVariable,int num_arg){
     TLISTA *lista1 = crearLista();
     TLISTA *lista2 = crearLista();
     if(contarCaracter(cadena, "+") == 1){
@@ -1028,6 +1087,36 @@ TLISTA *operar(char** cadena, TVAR *laGranVariable){
         lista1 = charToList(cadena[0], laGranVariable);
         lista2 = charToList(cadena[2], laGranVariable);
         return RestaListas(lista1, lista2);
+    } else if(strcmp(cadena[0], "head") == 0){
+        if(num_arg != 3){
+            printf("Error de sintaxis\n");
+            return NULL;
+        }
+        if(decimalValidar(cadena[1]) == 0){
+            printf("Error de sintaxis\n");
+            return NULL;
+        }
+        TLISTA *listaux = charToList(cadena[2], laGranVariable);
+        if(listaux == NULL){
+            printf("Error de sintaxis\n");
+            return NULL;
+        }
+        return copiarNlistaPrimeras(listaux, atoi(cadena[1]));
+    } else if(strcmp(cadena[0], "tail") == 0){
+        if(num_arg != 3){
+            printf("Error de sintaxis\n");
+            return NULL;
+        }
+        if(decimalValidar(cadena[1]) == 0){
+            printf("Error de sintaxis\n");
+            return NULL;
+        }
+        TLISTA *listaux = charToList(cadena[2], laGranVariable);
+        if(listaux == NULL){
+            printf("Error de sintaxis\n");
+            return NULL;
+        }
+        return copiarNlistaUltimas(listaux, atoi(cadena[1]));
     } else {
         return charToList(cadena[0], laGranVariable);
     }

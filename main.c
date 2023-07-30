@@ -71,13 +71,20 @@ int main(int argc, char *argv[])
             printf("Bye, bye\n");
             SetConsoleTextAttribute(hConsole, 7);
             return 0;
-        } else if(strcmp(comtok[0], "head") == 0){
-            printf("head\n");
         } else if(strcmp(comtok[0], "tail") == 0){
             printf("tail\n");
         } else if(strcmp(comtok[0], "isIn") == 0){
             printf("isIn\n");
         } else if(strcmp(comtok[0], "vars") == 0){
+            if(num_arg != 3){
+                printf("Error de sintaxis\n");
+                continue;
+            }
+            TVAR *auxiliar = LaGranVariable;
+            for (int i = 0; i < atoi(comtok[1]); i++){
+                verLista(auxiliar->valor);
+                auxiliar = auxiliar->siguiente;
+            }
             printf("vars\n");
         } else if(strcmp(comtok[0], "save") == 0){
             printf("save\n");
@@ -89,9 +96,9 @@ int main(int argc, char *argv[])
                 continue;
             }
             TVAR *variableAsignar = crearVariable(comtok[0], NULL);
-            variableAsignar->valor = operar(&comtok[2],LaGranVariable);
+            variableAsignar->valor = operar(&comtok[2],LaGranVariable,num_arg-2);
             
-            VerLista(variableAsignar->valor);
+            verLista(variableAsignar->valor);
             LaGranVariable = insertaUltimaLaGranVariable(LaGranVariable,variableAsignar);
             continue;
         } else if(num_arg > 1 && strcmp(comtok[1], "#") == 0 && num_arg <= 3){ // a = [1,2,3] OK
@@ -110,9 +117,9 @@ int main(int argc, char *argv[])
             }
             continue;
         } else {
-            TLISTA* listToPrint = operar(comtok,LaGranVariable);
+            TLISTA* listToPrint = operar(comtok,LaGranVariable,num_arg);
             if(listToPrint != NULL){
-                VerLista(listToPrint);
+                verLista(listToPrint);
             }
         }
             // if (strchr(commandAux, '[') == NULL && strchr(commandAux, ']') == NULL){ // No se van a usar los corchetes aqui
