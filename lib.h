@@ -60,6 +60,7 @@ int contarCaracter(char **cadena, char *caracter);
 TLISTA *operar(char** cadena, TVAR *laGranVariable,int num_arg);
 TLISTA *charToList(char *cadena,TVAR *laGranVariable);
 TLISTA *copiarNlistaPrimeras(TLISTA *lista,int n);
+void laGranVista(TVAR *laGranVariable);
 
 
 #endif

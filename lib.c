@@ -605,14 +605,37 @@ void eliminarElementoLista(TLISTA *lista, double valor){
 void verLista(TLISTA *lista){
 
     if(lista->primero == NULL){
-        printf("Lista vacia\n");
+        printf("[]\n");
         return;
     }
 
     TNUM *auxiliar=lista->primero;
-    printf("%i",lista->n);
+    printf("[");
     for (int i=0; i<lista->n; i++){
-        printf("\n%d,  %.11g, %d\n",i, auxiliar->valor, auxiliar->decimales);
+        if(i == lista->n-1){
+            printf("%.11g",auxiliar->valor);
+        }
+        else{
+            printf("%.11g ",auxiliar->valor);
+        }
+        auxiliar=auxiliar->siguiente;
+    }
+    printf("]\n");
+}
+
+void laGranVista(TVAR *laGranVariable){
+
+    if(laGranVariable == NULL){
+        printf("Lista vacia\n");
+        return;
+    }
+
+    TVAR *auxiliar=laGranVariable;
+    int i =0;
+    while(auxiliar != NULL){
+        i++;
+        printf("\n[%d]| Nombre:  %s| Numero Elementos:  %d\n",i, auxiliar->nombre,auxiliar->valor->n);
+        verLista(auxiliar->valor);
         auxiliar=auxiliar->siguiente;
     }
 }
@@ -1060,7 +1083,7 @@ int contarCaracter(char **cadena, char *caracter) {
 TLISTA *charToList(char *cadena,TVAR *laGranVariable) {
     TLISTA *lista = crearLista();
     if(listaOvariable(cadena) == 1){
-        printf("ERROR\n");
+        printf("ERROR variable\n");
         return NULL;
     } else if(listaOvariable(cadena) == 0){
         TVAR *aux = buscarVariable(laGranVariable, cadena);
@@ -1092,7 +1115,7 @@ TLISTA *operar(char** cadena, TVAR *laGranVariable,int num_arg){
             printf("Error de sintaxis\n");
             return NULL;
         }
-        if(decimalValidar(cadena[1]) == 0){
+        if((enteroValidar(cadena[1]) == 0) && (atoi(cadena[1]) <= 0)){
             printf("Error de sintaxis\n");
             return NULL;
         }
@@ -1107,7 +1130,7 @@ TLISTA *operar(char** cadena, TVAR *laGranVariable,int num_arg){
             printf("Error de sintaxis\n");
             return NULL;
         }
-        if(decimalValidar(cadena[1]) == 0){
+        if((enteroValidar(cadena[1]) == 0) && (atoi(cadena[1]) <= 0)){
             printf("Error de sintaxis\n");
             return NULL;
         }
