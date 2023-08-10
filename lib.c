@@ -1148,5 +1148,158 @@ TLISTA *operar(char** cadena, TVAR *laGranVariable,int num_arg){
     return NULL;
 }
 
+void save(char *nombre, TVARS *workspace){ //Estamos escribiendo en el meta
 
+    char aux1[50]="./";
+    int numero_tablas = 0;
+    int i;
 
+    strcat(aux1,nombre);
+    strcat(aux1,".txt");
+
+    printf("Nombre del fichero: %s\n", aux1);
+    FILE *fichero; // creamos el meta
+    fichero = fopen(aux1,"w+"); // abrimos el txt
+    if(fichero != NULL){
+
+        fprintf(fichero, "LIST WORKSPACE\n");
+        fprintf(fichero,"--------------\n");
+        TVAR *auxiliar = workspace->var1;
+        for (int i = 0; i < workspace->n; i++) {
+            printf("Nombre: %s\n", auxiliar->nombre);
+            fprintf(fichero, "%s\n", auxiliar->nombre);
+            TLISTA *auxiliar2 = auxiliar->valor;
+            TNUM *numAux=auxiliar2->primero;
+            for (int j=0; j<auxiliar2->n; j++){
+                if(j == auxiliar2->n-1){
+                    fprintf(fichero,"%.11g\n",numAux->valor);
+                }
+                else{
+                    fprintf(fichero,"%.11g ",numAux->valor);
+                }
+                numAux=numAux->siguiente;
+            }
+            fprintf(fichero,"--------------\n");
+            auxiliar = auxiliar->siguiente;
+        }
+        
+        fclose(fichero); // cerramos el fichero
+    }
+    else{
+        printf("algo salio mal\n");
+    }
+}
+
+int imprimirTVAR(TVAR* LaGranLista){     
+    TVAR* aux = LaGranLista;  
+    int i = 0;   
+    while(aux != NULL){        
+        i++; 
+        aux = aux->siguiente;    
+    } 
+    return i;
+}
+
+TVARS* load(char *nombre){ //Carga las tablas en memoria
+
+    TVARS *workspace=NULL, *tablanueva;
+    FILE *fileWorkspace;
+    char aux1[50]="";
+    char linea[1000],val[100];
+    int num_tabla,num_campos, i, j;
+    char *nombre_tabla;
+    char **nombre_campo;
+    
+
+    strcpy(aux1,nombre);
+    strcat(aux1,".txt");
+
+    fileWorkspace = fopen(aux1, "r"); // abrimos el meta en modo lectura
+    if(fileWorkspace == NULL){
+        printf("ERROR inesperado");
+        return 0;
+    }
+    fgets(linea,1000,fileWorkspace); // leemos los primeros mil caracteres de una linea
+    ObtenerCampo(linea,":",1,val); // optenemos el valor del campo 1
+    Trim(val);                  // le quitamos los espacios al valor
+    num_tabla = atoi(val);      // lo convertimos a numero
+
+    for(i=0; i<num_tabla;i++){ // vamos a hacer este proceso tantas veces como tablas tengamos en el meta
+
+        fgets(linea,1000,fileWorkspace); // IGNORAMOS LOS GUIONES DEL META
+        fgets(linea,1000,fileWorkspace); // cogemos la linea del nombre de la tabla y num de campos. "CANDELA: 2"
+        ObtenerCampo(linea, ":", 0,val); // cogemos el primer valor de la linea hasta los dos puntos "CANDELA"
+        Trim(val);                  // Quita los espacios
+        nombre_tabla=strdup(val);   // apuntamos nombre_tabla al valor de val
+        ObtenerCampo(linea,":",1,val); // cogemos el numero de campos "2"
+        Trim(val);                  //quita los espacios
+        num_campos=atoi(val);       // convertimos a numero el valor de numcampos "2" 
+
+        nombre_campo = malloc(sizeof(char*)*num_campos); // reservamos memoria tipo puntero para los parametros
+        tipos = malloc(sizeof(TYPE*)*num_campos); //Reservmos memoria para los tipos
+        
+        for(j=0;j<num_campos;j++){ // lo vamos a hacer por cada columna de la tabla
+            fgets(linea,1000,fileWorkspace); // cogemos la linea
+            ObtenerCampo(linea,":",0,val);  // vemos el nombre del campo
+            Trim(val);
+            nombre_campo[j]=strdup(val); // lo copiamos en la caja de nombre_campo que es un puntero doble
+            ObtenerCampo(linea,":",1,val); // cogemos el tipo
+            Trim(val);
+            tipos[j]=tipo(val); // lo metemos en la caja de tipos
+        }
+
+        tablanueva = inicializar_tabla(nombre_tabla,num_campos, nombre_campo, tipos); // creamos la tabla
+
+        if(workspace==NULL){ // si es la primera tabla
+            workspace=tablanueva;
+                    
+        }
+        else{ // sino la insertamos la ultima
+            insertarUltima(workspace, tablanueva);          
+        }
+
+    }
+    fclose(fileWorkspace); // cerramos el meta
+    return workspace;
+}
+
+void Trim(char *cad){
+	int c, i, j, n=strlen(cad);
+	
+	if (cad==NULL || n<1)
+		return;
+	n--;
+	while(n>=0 && ((c=cad[n])==' ' || c=='\t' || c=='\n' || c=='\r' || c=='"'))
+		n--;
+	cad[n+1]='\0';
+	i=0;
+	while (i<=n && ((c=cad[i])==' ' || c=='\t' || c=='\n' || c=='\r' || c=='"'))
+		i++;
+	for (j=0 ; j<=n-i+1; j++)
+		cad[j]=cad[j+i];
+}
+
+char* ObtenerCampo(char *lin, char *sep, int id, char *val) {                                                           
+	int i, tamSep=1;
+	char *p1, *p2;
+	
+	if (lin==NULL || lin[0]=='\0')
+		return NULL;
+	
+	p1=lin;
+	p2=strstr(lin, sep);
+	
+	for(i=0; i<id;i++)
+	{
+		p1=p2+tamSep;
+		p2=strstr(p1, sep);
+	}
+	if(p2==NULL)
+		strcpy(val,p1);
+	else
+	{
+		strncpy(val, p1, p2-p1);
+		val [p2-p1]='\0';
+	}
+	return val;
+}

@@ -99,7 +99,14 @@ int main(int argc, char *argv[])
             }
             laGranVista(LaGranVariable);
         } else if(strcmp(comtok[0], "save") == 0){
-            printf("save\n");
+            if(num_arg != 2){
+                printf("Error de sintaxis\n");
+                continue;
+            }
+            workspace->n = imprimirTVAR(LaGranVariable);
+            printf("workspace->n: %d\n", workspace->n);
+            workspace->var1 = LaGranVariable;
+            save(comtok[1], workspace);
         } else if(strcmp(comtok[0], "load") == 0){
             printf("load\n");
         } else if(num_arg > 1 && strcmp(comtok[1], "=") == 0){ // a = [1,2,3] OK

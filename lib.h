@@ -61,6 +61,10 @@ TLISTA *operar(char** cadena, TVAR *laGranVariable,int num_arg);
 TLISTA *charToList(char *cadena,TVAR *laGranVariable);
 TLISTA *copiarNlistaPrimeras(TLISTA *lista,int n);
 void laGranVista(TVAR *laGranVariable);
+void save(char *nombre, TVARS *workspace);
+int imprimirTVAR(TVAR* LaGranLista);
+void Trim(char *cad)
+char* ObtenerCampo(char *lin, char *sep, int id, char *val)
 
 
 #endif
